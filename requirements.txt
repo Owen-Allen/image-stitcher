@@ -9,3 +9,4 @@ opencv-python-headless==4.8.1.78
 typing_extensions==4.7.1
 Werkzeug==2.2.3
 zipp==3.15.0
+
