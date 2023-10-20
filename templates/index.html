@@ -1,25 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Stitcher</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
-    <h1>Image Stitcher</h1>
-    <a href="/demo">see a quick demo</a>
-    <br/>
-    <br/>
-    <form action="http://10.0.0.165:5000/" method="POST" enctype="multipart/form-data">
-        <label for="left_image">Upload the left image:</label>
-        <input type="file" id="left_image" name="left_image" accept="image/png, image/jpeg" />
+    <div class="content">
+        <nav>
+            <h1>Image Stitcher</h1>
+            <a class="link" href="{{url_for('demo')}}">see a quick demo</a>
+            <a class="link right" href="{{url_for('about')}}">about</a>
+        </nav>
         <br/>
         <br/>
-        <label for="right_image">Upload the right image:</label>
-        <input type="file" id="right_image" name="right_image" accept="image/png, image/jpeg" />
-        <br/>
-        <br/>
-        <button type="submit">Start Stitching</button>
-    </form>
+        <form action="{{url_for('home')}}" method="POST" enctype="multipart/form-data">
+            <label for="left_image">Upload the left image:</label>
+            <input type="file" id="left_image" name="left_image" accept="image/png, image/jpeg" />
+            <br />
+            <br />
+            <label for="right_image">Upload the right image:</label>
+            <input type="file" id="right_image" name="right_image" accept="image/png, image/jpeg" />
+            <br />
+            <br />
+            <button class="submit" type="submit">Start Stitching</button>
+        </form>
+    </div>
 </body>
+
 </html>
