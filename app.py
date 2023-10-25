@@ -9,6 +9,7 @@ app.config['UPLOAD_FOLDER'] = os.path.abspath('static/uploads')
 app.config['RESULT_FOLDER'] = os.path.abspath('static/results')
 
 LAMBDA_URL = "https://jp8nmjnyo0.execute-api.us-west-2.amazonaws.com/create-stitch/image-stitcher"
+BUCKET_URL = "https://opencv-data.s3.us-east-2.amazonaws.com/"
 BUCKET = "opencv-data"
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
@@ -63,16 +64,14 @@ def home():
                 return
 
             # get result file from s3
-            result_image_fullpath = os.path.join(app.config['RESULT_FOLDER'], result_filename)
-            print(result_image_fullpath)
-            res_download = download_file(result_filename, BUCKET, result_image_fullpath)
+            # result_image_fullpath = os.path.join(app.config['RESULT_FOLDER'], result_filename)
+            # print(result_image_fullpath)
+            # res_download = download_file(result_filename, BUCKET, result_image_fullpath)
 
-            print(f'res_download {res_download}')
-            print(os.path.exists(result_image_fullpath))
-            # result_img_filename =  os.path.join(app.config['RESULT_FOLDER'],'result.png')
-
-
-            return render_template('result.html', result_image=f'/static/results/{result_filename}', h=640, w=640) 
+            
+            image_url = BUCKET_URL + result_filename
+            print(image_url)
+            return render_template('result.html', image_url=image_url)
         return render_template('index.html')
 
 
