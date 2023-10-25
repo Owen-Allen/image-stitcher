@@ -1,7 +1,6 @@
 import os
 from flask import Flask, render_template, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
-from stitch import stitch, hello_flask
 import datetime
 from aws_utilities import lambda_get_request, upload_file, download_file
 
