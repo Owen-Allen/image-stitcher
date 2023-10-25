@@ -20,7 +20,6 @@ def allowed_file(filename):
 def home():
     if request.method == 'GET':
         # print("Whats good")
-        print(hello_flask())
         return render_template('index.html')
     if request.method == 'POST':
         print("RECIEVED POST REQUEST")

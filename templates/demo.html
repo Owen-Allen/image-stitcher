@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Stitcher</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="static/js/index.js" defer></script>
+</head>
+
+<body>
+    <div class="content">
+        <nav>
+            <h1>Image Stitcher</h1>
+            <a class="link" href="/">home</a>
+            <a class="link right" href="{{url_for('about')}}">about</a>
+        </nav>
+        <br />
+        <br />
+        <p>Suppose we start with the following two images of the Art House Cafe in Ottawa.</p>
+        <div class="image-row container">
+            <div class="demo-image">
+                <p class="center"> left image </p>
+                <img ondragstart="drag(event)" draggable="true" id="image-to-drag" src="/static/left_art.png"
+                    alt="Stitched Image">
+            </div>
+            <div class="demo-image">
+                <p class="center"> right image </p>
+                <img ondragstart="drag(event)" draggable="true" src="/static/right_art.png" alt="Stitched Image">
+            </div>
+            <p>First we will pad our left image. It will act as a canvas that we will paint the right image onto.</p>
+
+            <div class="demo-image">
+                <p class="center"> right image </p>
+                <img src="/static/right_art.png" alt="Left Image Padded">
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

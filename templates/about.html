@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Stitcher</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="static/js/index.js" defer></script>
+</head>
+
+<body>
+    <div class="content">
+
+        <nav>
+            <h1>Image Stitcher</h1>
+            <a class="link" href="/">home</a>
+            <a class="link right" href="{{url_for('about')}}">about</a>
+        </nav>
+
+        <p>
+            During my Computer Vision (COMP 4102) class at Carleton University I developed an image stitching algorithm that . 
+            I built this simple app using Flask to demonstrate the script.
+        </p>
+
+        <br/>
+        <br/>
+    </div>
+</body>
+
+</html>

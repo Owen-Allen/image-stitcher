@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Stitcher</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="static/js/index.js" defer></script>
+</head>
+
+<body>
+    <div class="content">
+        <nav>
+            <h1>Image Stitcher</h1>
+            <a class="link" href="/demo">see a quick demo</a>
+            <a class="link right" href="{{url_for('about')}}">about</a>
+        </nav>
+        <br/>
+        <br/>
+
+        <form action="http://127.0.0.1:5000" method="POST" enctype="multipart/form-data">
+            <label for="left_image">Upload the left image:</label>
+            <input type="file" id="left_image" name="left_image" accept="image/png, image/jpeg" />
+            <br />
+            <br />
+            <label for="right_image">Upload the right image:</label>
+            <input type="file" id="right_image" name="right_image" accept="image/png, image/jpeg" />
+            <br />
+            <br />
+            <button class="submit" type="submit">Start Stitching</button>
+        </form>
+    </div>
+    <div class="result">
+        <img src="{{ result_image }}" alt="Stitched Image">
+    </div>
+    <br/>
+    <br/>
+</body>
+</html>
