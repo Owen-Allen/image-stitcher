@@ -2,14 +2,15 @@ import os
 from flask import Flask, render_template, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 from stitch import stitch, hello_flask
-import cv2 as cv
-
+import datetime
+from aws_utilities import lambda_get_request, upload_file, download_file
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = os.path.abspath('static/uploads')
-app.config['RESULT_FOLDER'] = os.path.abspath('static/results')  # Set the absolute path for the results
+app.config['RESULT_FOLDER'] = os.path.abspath('static/results')
 
-
+LAMBDA_URL = "https://jp8nmjnyo0.execute-api.us-west-2.amazonaws.com/create-stitch/image-stitcher"
+BUCKET = "opencv-data"
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 def allowed_file(filename):
@@ -38,22 +39,42 @@ def home():
 
         if left_image and allowed_file(left_image.filename) and right_image and allowed_file(right_image.filename):
             left_image_filename = secure_filename(left_image.filename)
-            left_image.save(os.path.join(app.config['UPLOAD_FOLDER'], left_image_filename))
-            right_image_filename = secure_filename(right_image.filename)
-            right_image.save(os.path.join(app.config['UPLOAD_FOLDER'], right_image_filename))
-
-            # totally could just use a stream, but for now this feels easier
-
-            img1 = cv.imread(os.path.join(app.config['UPLOAD_FOLDER'], left_image_filename), 1)
-            img2 = cv.imread(os.path.join(app.config['UPLOAD_FOLDER'], right_image_filename), 1)
+            left_image_path = os.path.join(app.config['UPLOAD_FOLDER'], left_image_filename)
+            left_image.save(left_image_path)
             
-            result_img = stitch(img2, img1)
+            right_image_filename = secure_filename(right_image.filename)
+            right_image_path = os.path.join(app.config['UPLOAD_FOLDER'], right_image_filename)
+            right_image.save(right_image_path)
 
-            h, w, c = result_img.shape
-            result_img_filename =  os.path.join(app.config['RESULT_FOLDER'],'result.png')
-            cv.imwrite(result_img_filename, result_img)
-            print(result_img_filename)
-            return  render_template('result.html', result_image='static/results/result.png', height=h, width=w) # render_template('result.html', result_image="/uploads" + left_image_filename)
+
+            # upload left and right file to s3 bucket
+            res_left = upload_file(left_image_path, BUCKET)
+            res_right = upload_file(right_image_path, BUCKET)
+
+            if(not res_left or not res_right):
+                print('error uploading files to s3')
+                return
+
+            # trigger lambda and get name of the result file
+
+            result_filename = lambda_get_request(LAMBDA_URL, left_image_filename, right_image_filename)
+
+            print(result_filename)
+            if(result_filename == ""):
+                print('error during lambda function execution')
+                return
+
+            # get result file from s3
+            result_image_fullpath = os.path.join(app.config['RESULT_FOLDER'], result_filename)
+            print(result_image_fullpath)
+            res_download = download_file(result_filename, BUCKET, result_image_fullpath)
+
+            print(f'res_download {res_download}')
+            print(os.path.exists(result_image_fullpath))
+            # result_img_filename =  os.path.join(app.config['RESULT_FOLDER'],'result.png')
+
+
+            return render_template('result.html', result_image=f'/static/results/{result_filename}', h=640, w=640) 
         return render_template('index.html')
 
 
