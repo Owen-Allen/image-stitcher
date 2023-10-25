@@ -22,6 +22,9 @@ def home():
     if request.method == 'GET':
         # print("Whats good")
         return render_template('index.html')
+
+@app.route("/result", methods=["GET", "POST"])
+def result():
     if request.method == 'POST':
         print("RECIEVED POST REQUEST")
         print(request.files)
@@ -73,6 +76,7 @@ def home():
             print(image_url)
             return render_template('result.html', image_url=image_url)
         return render_template('index.html')
+
 
 
 
