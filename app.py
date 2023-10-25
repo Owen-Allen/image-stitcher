@@ -6,7 +6,7 @@ from aws_utilities import lambda_get_request, upload_file, download_file
 
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 app = Flask(__name__)
@@ -26,23 +26,22 @@ def allowed_file(filename):
 @app.route("/", methods=["GET", "POST"])
 def home():
     if request.method == "GET":
-        # logging.debug("Whats good")
-        logging.debug("GET /")
+        logging.info("GET /")
 
         return render_template("index.html")
     if request.method == "POST":
-        logging.debug("POST /")
+        logging.info("POST /")
 
-        logging.debug(request.files)
+        logging.info(request.files)
         if "left_image" not in request.files or "right_image" not in request.files:
-            logging.debug("Missing files")
+            logging.info("Missing files")
             return redirect(request.url)
 
         left_image = request.files["left_image"]
         right_image = request.files["right_image"]
 
         if left_image.filename == "" or right_image.filename == "":
-            logging.debug("no images uploaded")
+            logging.info("no images uploaded")
             return redirect(request.url)
 
         if (left_image and allowed_file(left_image.filename) and right_image and allowed_file(right_image.filename)):
@@ -55,36 +54,36 @@ def home():
             right_image.save(right_image_path)
 
             # upload left and right file to s3 bucket
-            logging.debug("Uploading to s3")
+            logging.info("Uploading to s3")
             res_left = upload_file(left_image_path, BUCKET)
             res_right = upload_file(right_image_path, BUCKET)
 
             if not res_left or not res_right:
-                logging.debug("error uploading files to s3")
+                logging.info("error uploading files to s3")
                 return
 
-            logging.debug("Finished s3 upload")
+            logging.info("Finished s3 upload")
 
             # trigger lambda and get name of the result file
 
-            logging.debug("Starting Lambda")
+            logging.info("Starting Lambda")
 
             result_filename = lambda_get_request(LAMBDA_URL, left_image_filename, right_image_filename)
 
             if result_filename == "":
-                logging.debug("error during lambda function execution")
+                logging.info("error during lambda function execution")
                 return
             
-            logging.debug(f"Finished Lambda. result_filename: {result_filename}")
+            logging.info(f"Finished Lambda. result_filename: {result_filename}")
 
 
             # get result file from s3
             # result_image_fullpath = os.path.join(app.config['RESULT_FOLDER'], result_filename)
-            # logging.debug(result_image_fullpath)
+            # logging.info(result_image_fullpath)
             # res_download = download_file(result_filename, BUCKET, result_image_fullpath)
 
             image_url = BUCKET_URL + result_filename
-            logging.debug(image_url)
+            logging.info(image_url)
             return render_template("result.html", image_url=image_url)
         return render_template("index.html")
 
