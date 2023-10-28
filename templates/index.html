@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Stitcher</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script type="text/javascript" src="static/js/index.js">
+    </script>
+    <script>
+        var uploadUrl = '/upload_url'
+    </script>
 </head>
 
 <body>
@@ -26,8 +31,10 @@
             <input type="file" id="right_image" name="right_image" accept="image/png, image/jpeg" />
             <br />
             <br />
-            <button class="submit" type="submit">Start Stitching</button> <a> Note: may take about 20 seconds to complete </a>
+            <button class="submit" type="button" onclick="submitForm(uploadUrl)">Start Stitching</button> <a> Note: may take about 20 seconds to complete </a>
         </form>
+
+            <img id="result" src="" alt="Stitched Image" style="display: none">
     </div>
 </body>
 
