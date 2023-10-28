@@ -1,8 +1,9 @@
 import os
+import time
 from flask import Flask, render_template, flash, request, redirect, url_for, jsonify
 from werkzeug.utils import secure_filename
 import datetime
-from aws_utilities import lambda_get_request, upload_file, download_file, create_presigned_post
+from aws_utilities import lambda_get_request, object_exists, upload_file, download_file, create_presigned_post
 import logging
 
 # from dotenv import load_dotenv
@@ -17,7 +18,6 @@ logging.basicConfig(level=logging.INFO)
 LAMBDA_URL = os.environ.get('LAMBDA_URL')
 BUCKET_URL = os.environ.get('BUCKET_URL')
 BUCKET_NAME = os.environ.get('BUCKET_NAME')
-
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 def allowed_file(filename):
@@ -38,11 +38,14 @@ def result():
         if 'left' not in request.json or 'right' not in request.json:
             return 'Missing Parameters', 400
         
-        print("here2")
-        
         left_filename = request.json['left']
         right_filename = request.json['right']
-        print("here 3")
+        
+
+        for i in range(0, 10): # wait for the files to be done uploading, check for up to 10 seconds
+            if(object_exists(BUCKET_NAME, left_filename) and object_exists(BUCKET_NAME, right_filename)):
+                break
+            time.sleep(1)
 
         result_filename = lambda_get_request(LAMBDA_URL, left_filename, right_filename)
 
@@ -55,12 +58,6 @@ def result():
         image_url = BUCKET_URL + result_filename
         data = {'image_url': image_url}
         return data
-
-
-        # get result file from s3
-        # result_image_fullpath = os.path.join(app.config['RESULT_FOLDER'], result_filename)
-        # logging.info(result_image_fullpath)
-        # res_download = download_file(result_filename, BUCKET_NAME, result_image_fullpath)
 
 @app.route("/about", methods=["GET", "POST"])
 def about():

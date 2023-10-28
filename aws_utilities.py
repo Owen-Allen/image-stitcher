@@ -11,6 +11,20 @@ BUCKET_NAME = os.environ.get('BUCKET_NAME')
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
+
+def object_exists(bucket_name, object_name):
+    s3_client = boto3.client("s3",
+                            aws_access_key_id=AWS_ACCESS_KEY_ID, 
+                            aws_secret_access_key=AWS_SECRET_ACCESS_KEY, 
+                            )
+    try:
+        s3_client.head_object(Bucket=bucket_name, Key=object_name)
+        return True
+    except ClientError as e:
+        print(e)
+        return False
+
+
 def create_presigned_post(bucket_name, object_name,
                           fields=None, conditions=None, expiration=3600):
     """Generate a presigned URL S3 POST request to upload a file
@@ -91,15 +105,14 @@ def lambda_get_request(function_url, left_filename, right_filename):
     full_url = function_url + query_params
     print(full_url)
     r = requests.get(full_url)
-    print(r)
-    print(r.status_code)
-    print(r.content)
     if r.status_code == 200:
         response_data = r.content
         response_string = response_data.decode("utf-8")
         response_dict = json.loads(response_string)
         result_filename = response_dict["result_filename"]
         return result_filename
+    else:
+        print(r)
     return ""
 
 
