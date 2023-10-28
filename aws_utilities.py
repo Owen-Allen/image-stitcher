@@ -1,18 +1,50 @@
 import requests
 import json
-import base64
 import boto3
+from botocore.config import Config
 from botocore.exceptions import ClientError
 import logging
 import os
 
+LAMBDA_URL = os.environ.get('LAMBDA_URL')
+BUCKET_NAME = os.environ.get('BUCKET_NAME')
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
-LAMBDA_URL = "https://jp8nmjnyo0.execute-api.us-west-2.amazonaws.com/create-stitch/image-stitcher"
-BUCKET = "opencv-data"
+def create_presigned_post(bucket_name, object_name,
+                          fields=None, conditions=None, expiration=3600):
+    """Generate a presigned URL S3 POST request to upload a file
 
-s3 = boto3.resource("s3")
+    :param bucket_name: string
+    :param object_name: string
+    :param fields: Dictionary of prefilled form fields
+    :param conditions: List of conditions to include in the policy
+    :param expiration: Time in seconds for the presigned URL to remain valid
+    :return: Dictionary with the following keys:
+        url: URL to post to
+        fields: Dictionary of form fields and values to submit with the POST
+    :return: None if error.
+    """
 
-def upload_file(file_name, bucket, object_name=None):
+    # Generate a presigned S3 POST URL
+    s3_client = boto3.client("s3",
+                             aws_access_key_id=AWS_ACCESS_KEY_ID, 
+                             aws_secret_access_key=AWS_SECRET_ACCESS_KEY, 
+                             )    
+    try:
+        response = s3_client.generate_presigned_post(bucket_name,
+                                                     object_name,
+                                                     Fields=fields,
+                                                     Conditions=conditions,
+                                                     ExpiresIn=expiration)
+    except ClientError as e:
+        logging.error(e)
+        return None
+
+    # The response contains the presigned URL and required fields
+    return response
+
+def upload_file(file_name, bucket_name, object_name=None):
     # https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-uploading-files.html
     """Upload a file to an S3 bucket
 
@@ -27,9 +59,12 @@ def upload_file(file_name, bucket, object_name=None):
         object_name = os.path.basename(file_name)
 
     # Upload the file
-    s3_client = boto3.client("s3")
+    s3_client = boto3.client("s3",
+                             aws_access_key_id=AWS_ACCESS_KEY_ID, 
+                             aws_secret_access_key=AWS_SECRET_ACCESS_KEY, 
+                             )
     try:
-        response = s3_client.upload_file(file_name, bucket, object_name)
+        response = s3_client.upload_file(file_name, bucket_name, object_name)
     except ClientError as e:
         print("error uploading")
         print(e)
@@ -37,12 +72,13 @@ def upload_file(file_name, bucket, object_name=None):
     return True
 
 
-def download_file(file_name, bucket, save_path=None):
+def download_file(file_name, bucket_name, save_path=None):
     try:
+        s3 = boto3.resource("s3")
         if save_path == None:
-            s3.meta.client.download_file(bucket, file_name, file_name)
+            s3.meta.client.download_file(bucket_name, file_name, file_name)
         else:
-            s3.meta.client.download_file(bucket, file_name, save_path)
+            s3.meta.client.download_file(bucket_name, file_name, save_path)
         return True
     except Exception as e:
         print("error downloading")
@@ -67,9 +103,9 @@ def lambda_get_request(function_url, left_filename, right_filename):
     return ""
 
 
-def stitch_process(left_image_filename, right_image_filename, bucket):
-    upload_res_left = upload_file(left_image_filename, bucket)
-    upload_res_right = upload_file(right_image_filename, bucket)
+def stitch_process(left_image_filename, right_image_filename, bucket_name):
+    upload_res_left = upload_file(left_image_filename, bucket_name)
+    upload_res_right = upload_file(right_image_filename, bucket_name)
     if not upload_res_left or not upload_res_right:
         print(f"upload_res_left {upload_res_left}")
         print(f"upload_res_right {upload_res_right}")
@@ -85,7 +121,7 @@ def stitch_process(left_image_filename, right_image_filename, bucket):
         return "error running lambda"
 
     print(result_filename)
-    download_res = download_file(result_filename, bucket)
+    download_res = download_file(result_filename, bucket_name)
 
     if not download_res:
         return "error downloading image"
