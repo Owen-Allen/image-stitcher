@@ -42,7 +42,7 @@ def result():
         right_filename = request.json['right']
         
 
-        for i in range(0, 10): # wait for the files to be done uploading, check for up to 10 seconds
+        for i in range(0, 4):
             if(object_exists(BUCKET_NAME, left_filename) and object_exists(BUCKET_NAME, right_filename)):
                 break
             time.sleep(1)
