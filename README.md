@@ -1,5 +1,10 @@
 # Image Stitcher
 
+Flask web app that stitches images together using AKAZE local features matching, planar homography, image warping and other computer vision techniques.
+
+CURRENT ISSUES:
+- Vercel requests timeout after 10 seconds, and the lambda function takes longer than that to complete (for large inputs especially), stopping us from passing the result image url
+- Solution: Have the Flask request server create the name of the result file and pass that name to the lambda function. Then complete the request and have the frontend wait/load the result once the lambda function is complete
 
 <p float="left">
 <img alt="Left image" src="https://github.com/Owen-Allen/image-stitcher/blob/main/static/left_art.png" width="400">
