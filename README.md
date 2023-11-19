@@ -3,7 +3,7 @@
 
 <p float="left">
 <img alt="Left image" src="https://github.com/Owen-Allen/image-stitcher/blob/main/static/left_art.png" width="200">
-<img alt="Right image" src="https://github.com/Owen-Allen/image-stitcher/blob/main/static/right_art" width="200">
+<img alt="Right image" src="https://github.com/Owen-Allen/image-stitcher/blob/main/static/right_art.png" width="200">
 </p>
 
 <img alt="Result image" src="https://github.com/Owen-Allen/image-stitcher/blob/main/static/ffa2daf6-a7e4-4fe3-a4ce-e445a2a0cc52.png" width="400">
